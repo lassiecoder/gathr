@@ -12,7 +12,10 @@ const store = await EventStore.fromFile(DB_PATH, () => seedEvents(), args.has('-
 if (args.has('--no-listen')) {
   console.log(`Seeded ${store.all().length} events into ${DB_PATH}`);
 } else {
-  createApp(store).listen(PORT, () => {
+  // In production the API also serves the built web app, so one service hosts everything.
+  const staticDir =
+    process.env.NODE_ENV === 'production' ? fileURLToPath(new URL('../../web/dist', import.meta.url)) : undefined;
+  createApp(store, { staticDir }).listen(PORT, () => {
     console.log(`API listening on http://localhost:${PORT} (data: ${DB_PATH})`);
   });
 }

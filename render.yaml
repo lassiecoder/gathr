@@ -1,0 +1,16 @@
+# Render Blueprint: one free web service that runs the API and serves the built React app.
+services:
+  - type: web
+    name: gathr
+    runtime: node
+    plan: free
+    # NODE_ENV=production is also set during the build, so dev dependencies must be opted in.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: node server/dist/index.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"

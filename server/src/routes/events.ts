@@ -17,8 +17,8 @@ export interface EventsRouterDeps {
   store: EventStore;
   live: LiveHub;
   now: () => number;
-  /** Public web origin, used for links inside calendar files. */
-  webOrigin: string;
+  /** Public web origin for links inside calendar files; falls back to the request's origin. */
+  webOrigin?: string;
 }
 
 export function eventsRouter({ store, live, now, webOrigin }: EventsRouterDeps) {
@@ -82,7 +82,7 @@ export function eventsRouter({ store, live, now, webOrigin }: EventsRouterDeps) 
     res
       .type('text/calendar; charset=utf-8')
       .attachment(icsFilename(event.title))
-      .send(toIcs(event, { url: `${webOrigin}/events/${event.id}`, now: now() }));
+      .send(toIcs(event, { url: `${webOrigin ?? `${req.protocol}://${req.get('host')}`}/events/${event.id}`, now: now() }));
   });
 
   router.post('/', requireUser, async (req, res) => {

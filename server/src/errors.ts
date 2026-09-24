@@ -37,6 +37,13 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     res.status(400).json({ error: { code: 'BAD_JSON', message: 'Request body is not valid JSON' } });
     return;
   }
+  // Errors from Express middleware (e.g. serve-static's 404) carry their own 4xx status.
+  const status = Number(err?.status ?? err?.statusCode);
+  if (status >= 400 && status < 500) {
+    // Generic message: middleware errors can include filesystem paths.
+    res.status(status).json({ error: { code: status === 404 ? 'NOT_FOUND' : 'BAD_REQUEST', message: status === 404 ? 'Not found' : 'Bad request' } });
+    return;
+  }
   console.error(err);
   res.status(500).json({ error: { code: 'INTERNAL', message: 'Something went wrong' } });
 };

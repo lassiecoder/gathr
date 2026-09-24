@@ -25,6 +25,17 @@ Other scripts:
 | `npm run build` | Production build of both |
 | `npm run seed` | Reset `server/data/db.json` to fresh demo data (dates are relative to today) |
 
+## Deploy (free, on Render)
+
+In production, one Node service runs the API **and** serves the built React app, so there's a single URL and no cross-origin setup.
+
+1. On Render, choose **New → Blueprint** and pick this repo. `render.yaml` configures everything.
+2. Every push to `main` redeploys.
+
+To run the production build yourself: `npm run build && npm start` (serves on `PORT`, default 4000).
+
+Free-plan caveats: the service sleeps after ~15 min idle (the first request takes ~30–60s to wake it), and the filesystem is ephemeral, so the data resets to fresh demo events on each restart or deploy. For persistence, swap `EventStore` for Postgres (e.g. Neon's free tier).
+
 ## Features
 
 **Browse** (`/`)

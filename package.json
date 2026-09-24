@@ -2,7 +2,7 @@
   "name": "gathr",
   "private": true,
   "version": "0.1.0",
-  "description": "Events module — React + TypeScript frontend with an Express + TypeScript API",
+  "description": "Events module \u2014 React + TypeScript frontend with an Express + TypeScript API",
   "workspaces": [
     "server",
     "web"
@@ -12,9 +12,13 @@
     "build": "npm run build -w server && npm run build -w web",
     "test": "npm run test -w server && npm run test -w web",
     "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
-    "seed": "npm run seed -w server"
+    "seed": "npm run seed -w server",
+    "start": "NODE_ENV=production node server/dist/index.js"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
