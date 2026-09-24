@@ -125,17 +125,46 @@ const SPECS: SeedSpec[] = [
   },
 ];
 
-function atLocal(day: number, hour: number, minute = 0) {
-  const d = new Date();
-  d.setDate(d.getDate() + day);
-  d.setHours(hour, minute, 0, 0);
-  return d;
+/** Milliseconds `timeZone` is ahead of UTC at instant `ms` (e.g. -4h for New York in summer). */
+function zoneOffset(ms: number, timeZone: string) {
+  const parts: Record<string, number> = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+    })
+      .formatToParts(new Date(ms))
+      .map((p) => [p.type, Number(p.value)]),
+  );
+  const get = (type: string) => parts[type] ?? 0;
+  return Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), get('second')) - (ms - (ms % 1000));
 }
 
-export function seedEvents(): EventRecord[] {
-  const createdAt = atLocal(-14, 12).toISOString();
+/**
+ * A wall-clock time in `timeZone`, `day` days from today there — independent of the server's own
+ * zone, so "Sunrise Run 6:30" really is 6:30am for the audience whether the host runs UTC or not.
+ */
+export function atZoned(day: number, hour: number, minute: number, timeZone: string, now = Date.now()) {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date(now))
+    .split('-')
+    .map(Number) as [number, number, number];
+  const wall = Date.UTC(today[0], today[1] - 1, today[2] + day, hour, minute);
+  // Two passes settle the offset across DST boundaries.
+  let ms = wall - zoneOffset(wall, timeZone);
+  ms = wall - zoneOffset(ms, timeZone);
+  return new Date(ms);
+}
+
+export function seedEvents(timeZone = process.env.SEED_TZ ?? 'America/New_York'): EventRecord[] {
+  const createdAt = atZoned(-14, 12, 0, timeZone).toISOString();
   return SPECS.map((s, i) => {
-    const start = atLocal(s.day, s.hour, s.minute);
+    const start = atZoned(s.day, s.hour, s.minute ?? 0, timeZone);
     const end = s.durationH ? new Date(start.getTime() + s.durationH * 3_600_000) : null;
     const hostName = PEOPLE[s.host]!;
     const hostId = `seed-user-${s.host}`;
