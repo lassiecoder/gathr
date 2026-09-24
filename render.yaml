@@ -14,3 +14,7 @@ services:
         value: production
       - key: NODE_VERSION
         value: "24"
+      # Demo events are seeded at local wall-clock times ("Sunrise Run 6:30").
+      # Render runs in UTC, so pin a zone that reads naturally for reviewers.
+      - key: TZ
+        value: America/New_York

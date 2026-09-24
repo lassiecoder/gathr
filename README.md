@@ -2,6 +2,8 @@
 
 A full-stack Events module for a consumer platform: browse, view, create/edit, and RSVP to events.
 
+**Live demo:** https://gathr-lgoo.onrender.com (free hosting: the first load after it's been idle can take 30–60 seconds while it wakes up)
+
 - **Frontend:** React 19 + TypeScript, Vite, React Router, TanStack Query
 - **Backend:** Express 5 + TypeScript, Zod validation, JSON-file persistence
 - **Tests:** 32 API tests (Vitest + Supertest, including a real SSE connection) and 18 frontend tests (Vitest + Testing Library)
